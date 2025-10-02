@@ -82,11 +82,10 @@ public class ImportDialog extends AbstractDialog {
 
         var fieldsPanel = new JPanel(new GridBagLayout());
         int fieldsRow = 0;
-        var definitionLabel =
-                new ZapHtmlLabel(
-                        "<html>"
-                                + Constant.messages.getString(MESSAGE_PREFIX + "labelDefinition")
-                                + "<font color=red>*</font></html>");
+        var definitionLabel = new ZapHtmlLabel(
+                "<html>"
+                        + Constant.messages.getString(MESSAGE_PREFIX + "labelDefinition")
+                        + "<font color=red>*</font></html>");
         fieldsPanel.add(
                 definitionLabel, LayoutHelper.getGBC(0, fieldsRow, 1, 0.5, new Insets(0, 0, 4, 4)));
         fieldsPanel.add(
@@ -122,11 +121,10 @@ public class ImportDialog extends AbstractDialog {
         int row = 0;
         add(fieldsPanel, LayoutHelper.getGBC(0, row, 2, 1.0, new Insets(8, 8, 4, 8)));
         row++;
-        var requiredFieldsLabel =
-                new ZapHtmlLabel(
-                        "<html><font color=red>*</font> "
-                                + Constant.messages.getString(MESSAGE_PREFIX + "requiredFields")
-                                + "</html>");
+        var requiredFieldsLabel = new ZapHtmlLabel(
+                "<html><font color=red>*</font> "
+                        + Constant.messages.getString(MESSAGE_PREFIX + "requiredFields")
+                        + "</html>");
         Font font = requiredFieldsLabel.getFont();
         requiredFieldsLabel.setFont(FontUtils.getFont(font, FontUtils.Size.much_smaller));
         requiredFieldsLabel.setHorizontalAlignment(JLabel.RIGHT);
@@ -187,8 +185,7 @@ public class ImportDialog extends AbstractDialog {
         if ("".equals(selectedContextName)) {
             return -1;
         }
-        Context selectedContext =
-                extOpenApi.getModel().getSession().getContext(selectedContextName);
+        Context selectedContext = extOpenApi.getModel().getSession().getContext(selectedContextName);
         if (selectedContext == null) {
             return -1;
         }
@@ -235,13 +232,11 @@ public class ImportDialog extends AbstractDialog {
 
     private JButton getChooseFileButton() {
         if (buttonChooseFile == null) {
-            buttonChooseFile =
-                    new JButton(Constant.messages.getString(MESSAGE_PREFIX + "chooseFileButton"));
+            buttonChooseFile = new JButton(Constant.messages.getString(MESSAGE_PREFIX + "chooseFileButton"));
             buttonChooseFile.addActionListener(
                     e -> {
-                        JFileChooser filechooser =
-                                new JFileChooser(
-                                        Model.getSingleton().getOptionsParam().getUserDirectory());
+                        JFileChooser filechooser = new JFileChooser(
+                                Model.getSingleton().getOptionsParam().getUserDirectory());
                         int state = filechooser.showOpenDialog(this);
                         if (state == JFileChooser.APPROVE_OPTION) {
                             String filename = filechooser.getSelectedFile().getAbsolutePath();
@@ -273,22 +268,21 @@ public class ImportDialog extends AbstractDialog {
 
     private JButton getImportButton() {
         if (buttonImport == null) {
-            buttonImport =
-                    new JButton(Constant.messages.getString(MESSAGE_PREFIX + "importButton"));
+            buttonImport = new JButton(Constant.messages.getString(MESSAGE_PREFIX + "importButton"));
             buttonImport.addActionListener(
                     e -> {
                         showProgressBar(true);
                         new Thread(
-                                        () -> {
-                                            if (validateTargetUrl() && importDefinition()) {
-                                                ThreadUtils.invokeAndWaitHandled(
-                                                        () -> {
-                                                            dispose();
-                                                            showProgressBar(false);
-                                                        });
-                                            }
-                                        },
-                                        "ZAP-OpenAPI-UI-Import")
+                                () -> {
+                                    if (validateTargetUrl() && importDefinition()) {
+                                        ThreadUtils.invokeAndWaitHandled(
+                                                () -> {
+                                                    dispose();
+                                                    showProgressBar(false);
+                                                });
+                                    }
+                                },
+                                "ZAP-OpenAPI-UI-Import")
                                 .start();
                     });
         }
@@ -333,16 +327,17 @@ public class ImportDialog extends AbstractDialog {
         }
 
         try {
-            new URL(definitionLocation).toURI();
+            // Validate the definitionLocation as a URI without using the deprecated
+            // URL(String) constructor
+            new java.net.URI(definitionLocation);
             var uri = new URI(definitionLocation, true);
             return extOpenApi.importOpenApiDefinition(
-                            uri,
-                            getTargetField().getText(),
-                            true,
-                            getSelectedContextId(),
-                            getSelectedUser())
-                    == null;
-        } catch (URIException | MalformedURLException | URISyntaxException ignored) {
+                    uri,
+                    getTargetField().getText(),
+                    true,
+                    getSelectedContextId(),
+                    getSelectedUser()) == null;
+        } catch (URIException | URISyntaxException ignored) {
             // Not a valid URI, try to import as a file
         } catch (InvalidUrlException e) {
             ThreadUtils.invokeAndWaitHandled(
@@ -371,8 +366,7 @@ public class ImportDialog extends AbstractDialog {
         }
         try {
             return extOpenApi.importOpenApiDefinition(
-                            file, getTargetField().getText(), true, getSelectedContextId())
-                    == null;
+                    file, getTargetField().getText(), true, getSelectedContextId()) == null;
         } catch (InvalidUrlException e) {
             ThreadUtils.invokeAndWaitHandled(
                     () -> {
@@ -391,8 +385,7 @@ public class ImportDialog extends AbstractDialog {
     }
 
     private static void setContextMenu(JTextField field) {
-        JMenuItem paste =
-                new JMenuItem(Constant.messages.getString(MESSAGE_PREFIX + "pasteAction"));
+        JMenuItem paste = new JMenuItem(Constant.messages.getString(MESSAGE_PREFIX + "pasteAction"));
         paste.addActionListener(e -> field.paste());
 
         JPopupMenu jPopupMenu = new JPopupMenu();
